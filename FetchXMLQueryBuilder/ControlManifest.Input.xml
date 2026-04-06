@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <control namespace="Dynamics365" constructor="FetchXMLQueryBuilder" version="1.0.0" display-name-key="FetchXML Query Builder" description-key="Build FetchXML queries visually with entity selection, condition groups, related entities, column customization, sort order, and save/restore functionality" control-type="standard" >
+    <external-service-usage enabled="false">
+    </external-service-usage>
+    
+    <!-- Input: Read saved FetchXML from field -->
+    <property name="fetchXML" display-name-key="FetchXML Field" description-key="Field to read/write FetchXML query" of-type="Multiple" usage="bound" required="true" />
+    
+    <!-- Target Entity to query (Optional - can be selected in UI) -->
+    <property name="targetEntity" display-name-key="Target Entity" description-key="Logical name of the entity to query (e.g., account, contact)" of-type="SingleLine.Text" usage="input" required="false" />
+    
+    <resources>
+      <code path="index.ts" order="1"/>
+    </resources>
+    
+    <feature-usage>
+      <uses-feature name="WebAPI" required="true" />
+      <uses-feature name="Utility" required="true" />
+    </feature-usage>
+  </control>
+</manifest>

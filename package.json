@@ -1,0 +1,34 @@
+{
+  "name": "fetchxml-query-builder",
+  "version": "1.0.0",
+  "description": "FetchXML Query Builder - A Power Apps Component Framework (PCF) control for building FetchXML queries visually in Dynamics 365.",
+  "scripts": {
+    "build": "pcf-scripts build",
+    "clean": "pcf-scripts clean",
+    "lint": "pcf-scripts lint",
+    "lint:fix": "pcf-scripts lint fix",
+    "rebuild": "pcf-scripts rebuild",
+    "start": "pcf-scripts start",
+    "start:watch": "pcf-scripts start watch",
+    "refreshTypes": "pcf-scripts refreshTypes"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "@fluentui/react": "^8.110.10"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "@microsoft/eslint-plugin-power-apps": "^0.2.51",
+    "@types/node": "^18.19.86",
+    "@types/powerapps-component-framework": "^1.3.16",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "eslint-plugin-promise": "^7.1.0",
+    "globals": "^15.15.0",
+    "pcf-scripts": "^1",
+    "pcf-start": "^1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "8.44.0"
+  }
+}
