@@ -134,7 +134,10 @@ export const FetchXMLQueryBuilder: React.FC<FetchXMLQueryBuilderProps> = ({
     
     // Column selection state
     const [showColumnPicker, setShowColumnPicker] = React.useState<boolean>(false);
-    const [selectedColumns, setSelectedColumns] = React.useState<string[]>([]);
+    // Get the attributes from the initialGroup to pre-populate selected columns when loading saved FetchXML. 
+    // This is a best-effort approach since the initialGroup may not always have attributes (e.g. if it only has conditions/groups without a flat list of selected attributes).
+    // If initialGroup doesn't have attributes, we fall back to an empty selection and let the user pick columns manually.
+    const [selectedColumns, setSelectedColumns] = React.useState<string[]>(initialGroup?.attributes || []);
     const [tempSelectedColumns, setTempSelectedColumns] = React.useState<string[]>([]);
     
     // Column picker search filter
@@ -230,7 +233,8 @@ export const FetchXMLQueryBuilder: React.FC<FetchXMLQueryBuilderProps> = ({
      */
     const buildFetchXML = React.useCallback((): string => {
         if (!hasQueryContent(queryGroup)) return '';
-        const cols = selectedColumns.length > 0 ? selectedColumns : undefined;
+        const cols = selectedColumns.length > 0 ? selectedColumns : queryGroup?.attributes ? queryGroup.attributes : undefined;
+        
         const sort = orderBy.length > 0 ? orderBy : undefined;
         if (linkEntities.length > 0) {
             return FetchXMLGenerator.generateFetchXMLWithLinks(entityName, queryGroup, linkEntities, cols, sort);
@@ -597,7 +601,8 @@ export const FetchXMLQueryBuilder: React.FC<FetchXMLQueryBuilderProps> = ({
                         />
                         <DefaultButton
                             iconProps={{ iconName: 'ColumnOptions' }}
-                            text="Columns"
+                            text={selectedColumns.length > 0 
+                                ? `Columns (${selectedColumns.length})` : 'Columns'}
                             onClick={handleOpenColumnPicker}
                             disabled={!metadata}
                             styles={{
