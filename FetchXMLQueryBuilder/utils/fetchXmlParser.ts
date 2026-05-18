@@ -57,6 +57,14 @@ export class FetchXMLParser {
       }
       const entityInner = entityMatch[1];
 
+      // Parse <attribute> tags in this entity block (if any) to populate attributes list on root group
+      const attributesList = [];
+      const attrPattern = /<attribute[^>]*name=["']([^"']+)["'][^>]*\/?>/gi;
+      let attrMatch;
+      while ((attrMatch = attrPattern.exec(entityInner)) !== null) {
+        attributesList.push(attrMatch[1]);
+      }
+
       // Parse top-level filter(s)
       const filters = parseFilters(entityInner);
       
@@ -64,14 +72,15 @@ export class FetchXMLParser {
       if (!filters || filters.length === 0) {
         const directConditions = parseConditions(entityInner);
         if (directConditions.length > 0) {
-          return { id: 'root', operator: 'and', conditions: directConditions, groups: [] };
+          return { id: 'root', operator: 'and', conditions: directConditions, groups: [], attributes: attributesList.length > 0 ? attributesList : undefined };
         }
         return emptyRoot();
       }
 
       // If single top-level filter, return it as root
       if (filters.length === 1) {
-        return filters[0];
+        // Trying to return attributes list if present on source fetchxml, otherwise return parsed filter as is
+        return attributesList.length > 0 ? { ...filters[0], attributes: attributesList } : filters[0];
       }
 
       // Multiple top-level filters: wrap them under an AND root
@@ -80,6 +89,8 @@ export class FetchXMLParser {
         operator: 'and',
         conditions: [],
         groups: filters,
+        // try to populate attributes from source fetchxml if present
+        attributes: attributesList.length > 0 ? attributesList : undefined
       };
     } catch {
       return null;

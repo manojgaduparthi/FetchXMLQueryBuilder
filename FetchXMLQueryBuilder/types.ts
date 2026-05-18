@@ -147,6 +147,7 @@ export interface QueryGroup {
     operator: 'and' | 'or';      // Logical operator for conditions in this group
     conditions: QueryCondition[]; // Array of conditions in this group
     groups: QueryGroup[];        // Array of nested child groups (recursive)
+    attributes?: string[];        // Specific attributes on the root of this group (entity)
 }
 
 /**
