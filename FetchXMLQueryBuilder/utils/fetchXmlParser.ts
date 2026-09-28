@@ -56,12 +56,13 @@ export class FetchXMLParser {
         return emptyRoot();
       }
       const entityInner = entityMatch[1];
+      const entityInnerWithoutLinks = stripLinkEntityBlocks(entityInner);
 
       // Parse <attribute> tags in this entity block (if any) to populate attributes list on root group
-      const attributesList = [];
+      const attributesList: string[] = [];
       const attrPattern = /<attribute[^>]*name=["']([^"']+)["'][^>]*\/?>/gi;
       let attrMatch;
-      while ((attrMatch = attrPattern.exec(entityInner)) !== null) {
+      while ((attrMatch = attrPattern.exec(entityInnerWithoutLinks)) !== null) {
         attributesList.push(attrMatch[1]);
       }
 
@@ -79,7 +80,7 @@ export class FetchXMLParser {
 
       // If single top-level filter, return it as root
       if (filters.length === 1) {
-        // Trying to return attributes list if present on source fetchxml, otherwise return parsed filter as is
+        // Trying to return attributes list if present on source FetchXML, otherwise return parsed filter as is
         return attributesList.length > 0 ? { ...filters[0], attributes: attributesList } : filters[0];
       }
 
@@ -89,7 +90,7 @@ export class FetchXMLParser {
         operator: 'and',
         conditions: [],
         groups: filters,
-        // try to populate attributes from source fetchxml if present
+        // try to populate attributes from source FetchXML if present
         attributes: attributesList.length > 0 ? attributesList : undefined
       };
     } catch {
@@ -132,6 +133,51 @@ export class FetchXMLParser {
 
 function emptyRoot(): QueryGroup {
   return { id: 'root', operator: 'and', conditions: [], groups: [] };
+}
+
+/**
+ * Remove all <link-entity>...</link-entity> blocks (including nested) from a block.
+ * Used to parse root-entity attributes without accidentally picking linked-entity attributes.
+ */
+function stripLinkEntityBlocks(block: string): string {
+  const TAG_OPEN = '<link-entity';
+  const TAG_CLOSE = '</link-entity>';
+  let index = 0;
+  let output = '';
+
+  while (index < block.length) {
+    const linkStart = block.indexOf(TAG_OPEN, index);
+    if (linkStart === -1) {
+      output += block.substring(index);
+      break;
+    }
+
+    output += block.substring(index, linkStart);
+
+    const openTagEnd = block.indexOf('>', linkStart);
+    if (openTagEnd === -1) {
+      // Malformed input: keep remaining text and stop.
+      output += block.substring(linkStart);
+      break;
+    }
+
+    const openTag = block.substring(linkStart, openTagEnd + 1);
+    if (openTag.endsWith('/>')) {
+      index = openTagEnd + 1;
+      continue;
+    }
+
+    const matched = findLinkEntityClose(block, openTagEnd, TAG_OPEN, TAG_CLOSE);
+    if (!matched) {
+      // Malformed input: keep remaining text and stop.
+      output += block.substring(linkStart);
+      break;
+    }
+
+    index = matched.endIndex;
+  }
+
+  return output;
 }
 
 /**

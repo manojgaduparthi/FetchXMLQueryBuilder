@@ -200,6 +200,7 @@ export const FetchXMLQueryBuilder: React.FC<FetchXMLQueryBuilderProps> = ({
     React.useEffect(() => {
         if (initialGroup) {
             setQueryGroup(initialGroup);
+            setSelectedColumns(initialGroup.attributes || []);
             setUserModifiedQuery(false);
         }
     }, [initialGroup]);
@@ -233,7 +234,7 @@ export const FetchXMLQueryBuilder: React.FC<FetchXMLQueryBuilderProps> = ({
      */
     const buildFetchXML = React.useCallback((): string => {
         if (!hasQueryContent(queryGroup)) return '';
-        const cols = selectedColumns.length > 0 ? selectedColumns : queryGroup?.attributes ? queryGroup.attributes : undefined;
+        const cols = selectedColumns.length > 0 ? selectedColumns : undefined;
         
         const sort = orderBy.length > 0 ? orderBy : undefined;
         if (linkEntities.length > 0) {
